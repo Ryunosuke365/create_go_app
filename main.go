@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/Ryunosuke365/create_go_app/generator"
+	"github.com/ryunosuke365/create_go_app/generator"
 )
 
 func main() {

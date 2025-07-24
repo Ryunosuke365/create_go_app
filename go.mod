@@ -1,3 +1,3 @@
-module github.com/Ryunosuke365/create_go_app
+module github.com/ryunosuke365/create_go_app
 
 go 1.24.5

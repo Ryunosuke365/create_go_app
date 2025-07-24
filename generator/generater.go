@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/Ryunosuke365/create_go_app/utils"
+	"github.com/ryunosuke365/create_go_app/utils"
 )
 
 var dirs = []string{
