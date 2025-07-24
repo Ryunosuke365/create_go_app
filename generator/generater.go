@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	// 埋め込み変数を明示的にimport
 )
 
 func GenerateFiles(appName string) error {
