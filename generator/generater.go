@@ -3,66 +3,42 @@ package generator
 import (
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
-
-	"github.com/ryunosuke365/create_go_app/utils"
 )
 
-var dirs = []string{
-	"cmd/{{.AppName}}",
-	"internal/config",
-	"internal/controller",
-	"internal/router",
-	"internal/middleware",
-	"internal/model",
-	"internal/repository",
-	"internal/service",
-	"internal/util",
-}
+func GenerateFiles(appName string) error {
+	fmt.Println("📦 プロジェクト構成を生成中...")
 
-var files = map[string]string{
-	"templates/main.tpl":   "cmd/{{.AppName}}/main.go",
-	"templates/router.tpl": "internal/router/router.go",
-	"templates/cors.tpl":   "internal/middleware/cors.go",
-}
+	dirs := []string{
+		filepath.Join(appName, "cmd", appName),
+		filepath.Join(appName, "internal", "router"),
+		filepath.Join(appName, "internal", "middleware"),
+		filepath.Join(appName, "internal", "controller"),
+		filepath.Join(appName, "internal", "model"),
+		filepath.Join(appName, "internal", "repository"),
+		filepath.Join(appName, "internal", "service"),
+		filepath.Join(appName, "internal", "config"),
+	}
 
-type TemplateData struct {
-	AppName string
-}
-
-func Generate(appName string) error {
-	base := "./" + appName
-	data := TemplateData{AppName: appName}
-
-	// ディレクトリ作成
-	for _, d := range dirs {
-		path := utils.ReplaceVars(d, data)
-		if err := os.MkdirAll(filepath.Join(base, path), os.ModePerm); err != nil {
-			return fmt.Errorf("dir作成失敗: %w", err)
+	for _, dir := range dirs {
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return fmt.Errorf("❌ ディレクトリ作成失敗: %w", err)
 		}
 	}
 
-	// テンプレートファイル生成
-	for tplSrc, dst := range files {
-		outPath := filepath.Join(base, utils.ReplaceVars(dst, data))
-		if err := utils.RenderTemplate(tplSrc, outPath, data); err != nil {
-			return err
+	// 埋め込んだテンプレートからファイルを生成
+	files := map[string]string{
+		filepath.Join(appName, "cmd", appName, "main.go"):           MainTemplate,
+		filepath.Join(appName, "internal", "router", "router.go"):   RouterTemplate,
+		filepath.Join(appName, "internal", "middleware", "cors.go"): CorsTemplate,
+	}
+
+	for path, content := range files {
+		if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+			return fmt.Errorf("❌ ファイル生成失敗: %w", err)
 		}
 	}
 
-	// go mod init の実行
-	if err := runGoModInit(base, appName); err != nil {
-		return fmt.Errorf("go mod init に失敗しました: %w", err)
-	}
-
+	fmt.Println("✅ プロジェクト生成が完了しました！")
 	return nil
-}
-
-func runGoModInit(basePath string, moduleName string) error {
-	cmd := exec.Command("go", "mod", "init", moduleName)
-	cmd.Dir = basePath
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
 }

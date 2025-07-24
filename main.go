@@ -15,7 +15,7 @@ func main() {
 	}
 
 	projectName := os.Args[1]
-	if err := generator.Generate(projectName); err != nil {
+	if err := generator.GenerateFiles(projectName); err != nil {
 		fmt.Printf("❌ 生成エラー: %v\n", err)
 		return
 	}
